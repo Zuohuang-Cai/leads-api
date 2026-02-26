@@ -5,7 +5,7 @@
 ```bash
 # Clone the repository
 git clone git@github.com:Zuohuang-Cai/leads-api.git
-# naar de juiste map
+# Navigate to the project directory
 cd leads-api
 # Install dependencies
 composer install
