@@ -3,6 +3,10 @@
 ## 🚀 Quick Start
 
 ```bash
+# Clone the repository
+git clone git@github.com:Zuohuang-Cai/leads-api.git
+# naar de juiste map
+cd leads-api
 # Install dependencies
 composer install
 
