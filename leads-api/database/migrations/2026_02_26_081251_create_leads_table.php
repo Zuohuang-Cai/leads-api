@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,8 +25,11 @@ return new class extends Migration
             $table->index(['email','status']);
         });
 
-        DB::statement("ALTER TABLE leads ADD CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) >= 2)");
-        DB::statement("ALTER TABLE leads ADD CONSTRAINT chk_email_format CHECK (email LIKE '%_@_%._%')");
+        // Add constraints only for MySQL/MariaDB (not SQLite)
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE leads ADD CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) >= 2)");
+            DB::statement("ALTER TABLE leads ADD CONSTRAINT chk_email_format CHECK (email LIKE '%_@_%._%')");
+        }
     }
 
     /**
