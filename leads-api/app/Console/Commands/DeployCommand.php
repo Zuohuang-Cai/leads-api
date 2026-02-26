@@ -90,19 +90,50 @@ class DeployCommand extends Command
         // Configure database if .env was just created
         if ($envCreated && $this->confirm('   Configure database settings?', true)) {
             $this->configureDatabaseSettings();
-            $this->reloadEnv();
         }
 
-        // Check if APP_KEY is set
-        if (empty(env('APP_KEY'))) {
-            $this->info('   Generating application key...');
-            Artisan::call('key:generate', ['--force' => true]);
-            $this->reloadEnv();
-            $this->info('   ✓ Application key generated');
-        }
+        // Check and fix APP_KEY
+        $this->ensureValidAppKey();
 
         $this->info('   ✓ Environment check passed');
         return true;
+    }
+
+    private function ensureValidAppKey(): void
+    {
+        $envPath = base_path('.env');
+        $content = file_get_contents($envPath);
+
+        // Check if APP_KEY exists and is valid
+        if (preg_match('/^APP_KEY=(.*)$/m', $content, $matches)) {
+            $currentKey = trim($matches[1]);
+
+            // Check if key is empty, invalid, or has duplicate base64 prefix
+            $isInvalid = empty($currentKey)
+                || !str_starts_with($currentKey, 'base64:')
+                || substr_count($currentKey, 'base64:') > 1
+                || strlen(base64_decode(str_replace('base64:', '', $currentKey))) !== 32;
+
+            if ($isInvalid) {
+                $this->info('   Generating new application key...');
+
+                // Generate a new valid key
+                $newKey = 'base64:' . base64_encode(random_bytes(32));
+
+                // Replace the APP_KEY line
+                $content = preg_replace('/^APP_KEY=.*$/m', "APP_KEY={$newKey}", $content);
+                file_put_contents($envPath, $content);
+
+                $this->info('   ✓ Application key generated');
+            }
+        } else {
+            // APP_KEY line doesn't exist, add it
+            $this->info('   Adding application key...');
+            $newKey = 'base64:' . base64_encode(random_bytes(32));
+            $content = "APP_KEY={$newKey}\n" . $content;
+            file_put_contents($envPath, $content);
+            $this->info('   ✓ Application key added');
+        }
     }
 
     private function createDefaultEnvFile(): void

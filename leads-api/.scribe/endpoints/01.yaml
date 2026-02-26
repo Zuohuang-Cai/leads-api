@@ -93,7 +93,7 @@ endpoints:
         name: status
         description: ''
         required: false
-        example: afgevallen
+        example: verkocht
         type: string
         enumValues:
           - nieuw
@@ -110,7 +110,7 @@ endpoints:
         name: sort
         description: ''
         required: false
-        example: asc
+        example: desc
         type: string
         enumValues:
           - asc
@@ -131,8 +131,8 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       search: b
-      status: afgevallen
-      sort: asc
+      status: verkocht
+      sort: desc
       per_page: 22
     fileParameters: []
     responses:
