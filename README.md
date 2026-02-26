@@ -68,5 +68,26 @@ UserCreated::dispatch(
         );
 ```
 Het gebruiksscenario hier is het verzenden van e-mails; afhankelijk van de implementatie kan dit natuurlijk ook worden vervangen door WebSockets of Server-Sent Events.
+
+### technische verbeter punt
+- Er wordt weinig gebruikgemaakt van libraries en functies die al door Laravel zijn aangeboden.
+- In ```AuthController.php``` zie ik dat verschillende methoden direct de repository aanroepen. Het is netter om eerst de application layer aan te roepen en pas daarna de repository.
+- in EloquentUserRepository.php zie ik een private methode toDomain(UserEloquentModel $model): User. De repository zou niet verantwoordelijk moeten zijn voor het converteren van een model naar een domain object. Dit hoort eigenlijk in de application layer.
+```php
+ private function toDomain(UserEloquentModel $model): User
+    {
+        return User::fromPersistence(
+            id: $model->id,
+            name: $model->name,
+            email: $model->email,
+            hashedPassword: $model->password,
+            emailVerifiedAt: $model->email_verified_at
+                ? new DateTimeImmutable($model->email_verified_at->toDateTimeString())
+                : null,
+            createdAt: new DateTimeImmutable($model->created_at->toDateTimeString()),
+            updatedAt: new DateTimeImmutable($model->updated_at->toDateTimeString()),
+        );
+    }
+```
 ### Conclusie
 Ik heb deze opdracht niet benaderd als een standaard dagelijkse taak, maar als een technische assessment om mijn vermogen als Software Engineer te bewijzen. De keuze voor deze architectuur, inclusief een zekere mate van bewuste over-engineering, dient om aan te tonen dat ik complexe concepten niet alleen theoretisch beheers, maar ook in de praktijk kan implementeren.
