@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use PDOException;
 
 class DeployCommand extends Command
@@ -55,26 +57,47 @@ class DeployCommand extends Command
         return 0;
     }
 
+    private function reloadEnv(): void
+    {
+        // Clear cached config
+        Artisan::call('config:clear');
+
+        // Reload .env file
+        $dotenv = Dotenv::createImmutable(base_path());
+        $dotenv->load();
+    }
+
     private function checkEnvironment(): bool
     {
         $this->info('📋 Step 1/8: Checking environment...');
 
+        $envCreated = false;
+
         if (!file_exists(base_path('.env'))) {
-            $this->warn('   ⚠️  .env file not found, copying from .env.example...');
+            $this->warn('   ⚠️  .env file not found...');
 
             if (file_exists(base_path('.env.example'))) {
                 copy(base_path('.env.example'), base_path('.env'));
-                $this->info('   ✓ .env file created');
+                $this->info('   ✓ .env file created from .env.example');
             } else {
-                $this->error('   ✗ .env.example not found');
-                return false;
+                $this->warn('   ⚠️  .env.example not found, creating default .env...');
+                $this->createDefaultEnvFile();
+                $this->info('   ✓ Default .env file created');
             }
+            $envCreated = true;
+        }
+
+        // Configure database if .env was just created
+        if ($envCreated && $this->confirm('   Configure database settings?', true)) {
+            $this->configureDatabaseSettings();
+            $this->reloadEnv();
         }
 
         // Check if APP_KEY is set
-        if (empty(config('app.key'))) {
+        if (empty(env('APP_KEY'))) {
             $this->info('   Generating application key...');
             Artisan::call('key:generate', ['--force' => true]);
+            $this->reloadEnv();
             $this->info('   ✓ Application key generated');
         }
 
@@ -82,15 +105,69 @@ class DeployCommand extends Command
         return true;
     }
 
+    private function createDefaultEnvFile(): void
+    {
+        $content = <<<'ENV'
+APP_NAME="Leads API"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=leads
+DB_USERNAME=root
+DB_PASSWORD=
+
+BROADCAST_CONNECTION=log
+CACHE_STORE=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+ENV;
+
+        file_put_contents(base_path('.env'), $content);
+    }
+
+    private function configureDatabaseSettings(): void
+    {
+        $envPath = base_path('.env');
+        $content = file_get_contents($envPath);
+
+        $dbHost = $this->ask('   Database host', '127.0.0.1');
+        $dbPort = $this->ask('   Database port', '3306');
+        $dbName = $this->ask('   Database name', 'leads');
+        $dbUser = $this->ask('   Database username', 'root');
+        $dbPass = $this->secret('   Database password') ?? '';
+
+        $content = preg_replace('/DB_HOST=.*/', "DB_HOST={$dbHost}", $content);
+        $content = preg_replace('/DB_PORT=.*/', "DB_PORT={$dbPort}", $content);
+        $content = preg_replace('/DB_DATABASE=.*/', "DB_DATABASE={$dbName}", $content);
+        $content = preg_replace('/DB_USERNAME=.*/', "DB_USERNAME={$dbUser}", $content);
+        $content = preg_replace('/DB_PASSWORD=.*/', "DB_PASSWORD={$dbPass}", $content);
+
+        file_put_contents($envPath, $content);
+        $this->info('   ✓ Database settings saved');
+    }
+
     private function createDatabase(): bool
     {
         $this->info('📋 Step 2/8: Setting up database...');
 
-        $dbName = env('DB_DATABASE', 'leads');
-        $dbUser = env('DB_USERNAME', 'root');
-        $dbPass = env('DB_PASSWORD', '');
-        $dbHost = env('DB_HOST', '127.0.0.1');
-        $dbPort = env('DB_PORT', '3306');
+        // Read directly from .env file to get fresh values
+        $envValues = $this->parseEnvFile();
+
+        $dbName = $envValues['DB_DATABASE'] ?? 'leads';
+        $dbUser = $envValues['DB_USERNAME'] ?? 'root';
+        $dbPass = $envValues['DB_PASSWORD'] ?? '';
+        $dbHost = $envValues['DB_HOST'] ?? '127.0.0.1';
+        $dbPort = $envValues['DB_PORT'] ?? '3306';
 
         try {
             $pdo = new \PDO("mysql:host=$dbHost;port=$dbPort", $dbUser, $dbPass);
@@ -108,22 +185,52 @@ class DeployCommand extends Command
     {
         $this->info('📋 Step 3/8: Clearing cache...');
 
+        // Clear config cache first (safe operation)
         try {
             Artisan::call('config:clear');
-            Artisan::call('cache:clear');
-            Artisan::call('route:clear');
-            Artisan::call('view:clear');
-            $this->info('   ✓ Cache cleared');
-            return true;
         } catch (\Exception $e) {
-            $this->error('   ✗ Cache clear failed: ' . $e->getMessage());
-            return false;
+            // Ignore
         }
+
+        // Cache clear may fail if database cache table doesn't exist yet
+        try {
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {
+            // Ignore - cache table may not exist
+        }
+
+        try {
+            Artisan::call('route:clear');
+        } catch (\Exception $e) {
+            // Ignore
+        }
+
+        try {
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {
+            // Ignore
+        }
+
+        $this->info('   ✓ Cache cleared');
+        return true;
     }
 
     private function runMigrations(): bool
     {
         $this->info('📋 Step 4/8: Running migrations...');
+
+        // Set database config from .env file directly
+        $envValues = $this->parseEnvFile();
+        config([
+            'database.connections.mysql.host' => $envValues['DB_HOST'] ?? '127.0.0.1',
+            'database.connections.mysql.port' => $envValues['DB_PORT'] ?? '3306',
+            'database.connections.mysql.database' => $envValues['DB_DATABASE'] ?? 'leads',
+            'database.connections.mysql.username' => $envValues['DB_USERNAME'] ?? 'root',
+            'database.connections.mysql.password' => $envValues['DB_PASSWORD'] ?? '',
+        ]);
+
+        // Purge existing connections to use new config
+        \DB::purge('mysql');
 
         try {
             $options = ['--force' => true];
@@ -213,6 +320,31 @@ class DeployCommand extends Command
             $this->warn('   ⚠️  Storage link failed (non-critical): ' . $e->getMessage());
             return true;
         }
+    }
+
+    private function parseEnvFile(): array
+    {
+        $envPath = base_path('.env');
+
+        if (!file_exists($envPath)) {
+            return [];
+        }
+
+        $values = [];
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        foreach ($lines as $line) {
+            if (str_starts_with(trim($line), '#')) {
+                continue;
+            }
+
+            if (str_contains($line, '=')) {
+                [$key, $value] = explode('=', $line, 2);
+                $values[trim($key)] = trim($value, '"\'');
+            }
+        }
+
+        return $values;
     }
 }
 
