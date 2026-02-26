@@ -835,7 +835,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"search\": \"b\",
-    \"status\": \"opgepakt\",
+    \"status\": \"proefrit\",
     \"sort\": \"desc\",
     \"per_page\": 22
 }"
@@ -864,7 +864,7 @@ const headers = {
 
 let body = {
     "search": "b",
-    "status": "opgepakt",
+    "status": "proefrit",
     "sort": "desc",
     "per_page": 22
 };
@@ -1071,10 +1071,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="status"                data-endpoint="GETapi-leads"
-               value="opgepakt"
+               value="proefrit"
                data-component="body">
     <br>
-<p>Example: <code>opgepakt</code></p>
+<p>Example: <code>proefrit</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>nieuw</code></li> <li><code>opgepakt</code></li> <li><code>proefrit</code></li> <li><code>offerte</code></li> <li><code>verkocht</code></li> <li><code>afgevallen</code></li></ul>
         </div>

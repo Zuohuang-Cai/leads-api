@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Stress;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
@@ -15,7 +16,7 @@ use Tests\TestCase;
  * Run with: php artisan test --filter=ApiStressTest
  */
 #[Group('stress')]
-final class ApiStressTest extends TestCase
+final class ApiStressTest extends BaseTestCase
 {
     use RefreshDatabase;
 

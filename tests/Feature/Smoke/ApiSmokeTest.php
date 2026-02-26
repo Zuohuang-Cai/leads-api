@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\Smoke;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\TestCase;
 
 /**
  * Smoke Tests - Quick health checks to verify basic API functionality.
  * These tests should be fast and verify that endpoints are accessible.
  */
-final class ApiSmokeTest extends TestCase
+final class ApiSmokeTest extends BaseTestCase
 {
     use RefreshDatabase;
 

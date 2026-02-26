@@ -8,10 +8,11 @@ use App\Domain\Shared\ValueObjects\Email;
 use App\Domain\User\User;
 use App\Domain\User\ValueObjects\HashedPassword;
 use App\Domain\User\ValueObjects\UserName;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-final class UserTest extends TestCase
+final class UserTest extends BaseTestCase
 {
     public function test_user_name_must_be_at_least_2_characters(): void
     {

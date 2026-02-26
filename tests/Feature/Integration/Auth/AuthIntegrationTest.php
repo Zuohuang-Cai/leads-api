@@ -7,6 +7,7 @@ namespace Tests\Feature\Integration\Auth;
 use App\Domain\User\Events\UserCreated;
 use App\Infrastructure\User\Models\UserEloquentModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
@@ -14,7 +15,7 @@ use Tests\TestCase;
  * Integration Tests - Test complete user registration and authentication flow.
  * These tests verify that all components work together correctly.
  */
-final class AuthIntegrationTest extends TestCase
+final class AuthIntegrationTest extends BaseTestCase
 {
     use RefreshDatabase;
 

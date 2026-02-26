@@ -93,7 +93,7 @@ endpoints:
         name: status
         description: ''
         required: false
-        example: opgepakt
+        example: proefrit
         type: string
         enumValues:
           - nieuw
@@ -131,7 +131,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       search: b
-      status: opgepakt
+      status: proefrit
       sort: desc
       per_page: 22
     fileParameters: []
