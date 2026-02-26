@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Api\Auth\Controllers;
 
+use App\Domain\User\Events\UserCreated;
+use App\Domain\User\Services\EmailVerificationServiceInterface;
+use App\Domain\User\User;
 use App\Http\Api\Auth\Requests\LoginRequest;
 use App\Http\Api\Auth\Requests\RegisterRequest;
-use App\Models\User;
+use App\Infrastructure\User\Repositories\EloquentUserRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,6 +22,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class AuthController extends Controller
 {
+    public function __construct(
+        private readonly EloquentUserRepository $userRepository,
+        private readonly EmailVerificationServiceInterface $emailVerificationService,
+    ) {}
+
     /**
      * Registreer een nieuwe gebruiker
      *
@@ -39,13 +46,26 @@ final class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => $validated['password'],
-        ]);
+        // Create domain user
+        $domainUser = User::create(
+            name: $validated['name'],
+            email: $validated['email'],
+            password: $validated['password'],
+        );
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        // Persist and get back with ID
+        $persistedUser = $this->userRepository->create($domainUser);
+
+        // Dispatch UserCreated event (triggers SendVerificationEmailListener)
+        UserCreated::dispatch(
+            $persistedUser->id,
+            $persistedUser->name->value,
+            $persistedUser->email->value,
+        );
+
+        // Get Eloquent model for Sanctum token
+        $eloquentUser = $this->userRepository->findEloquentById($persistedUser->id);
+        $token = $eloquentUser->createToken('auth-token')->plainTextToken;
 
         return $this->respondWithToken($token, Response::HTTP_CREATED);
     }
@@ -66,15 +86,17 @@ final class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $domainUser = $this->userRepository->findByEmail($request->email);
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if ($domainUser === null || !$domainUser->verifyPassword($request->password)) {
             return response()->json([
                 'message' => 'Invalid credentials.',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        // Get Eloquent model for Sanctum token
+        $eloquentUser = $this->userRepository->findEloquentByEmail($request->email);
+        $token = $eloquentUser->createToken('auth-token')->plainTextToken;
 
         return $this->respondWithToken($token);
     }
@@ -91,7 +113,16 @@ final class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        $eloquentUser = $request->user();
+
+        return response()->json([
+            'id' => $eloquentUser->id,
+            'name' => $eloquentUser->name,
+            'email' => $eloquentUser->email,
+            'email_verified_at' => $eloquentUser->email_verified_at,
+            'created_at' => $eloquentUser->created_at,
+            'updated_at' => $eloquentUser->updated_at,
+        ]);
     }
 
     /**
@@ -110,6 +141,70 @@ final class AuthController extends Controller
 
         return response()->json([
             'message' => 'Successfully logged out.',
+        ]);
+    }
+
+    /**
+     * Verstuur verificatie e-mail
+     *
+     * Verstuur een nieuwe verificatie e-mail naar de ingelogde gebruiker.
+     *
+     * @authenticated
+     *
+     * @response 200 scenario="E-mail verstuurd" {"message": "Verification email sent."}
+     * @response 400 scenario="Al geverifieerd" {"message": "Email already verified."}
+     * @response 401 scenario="Niet geauthenticeerd" {"message": "Unauthenticated."}
+     */
+    public function sendVerificationEmail(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->email_verified_at !== null) {
+            return response()->json([
+                'message' => 'Email already verified.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $this->emailVerificationService->sendVerificationEmail($user->id);
+
+        return response()->json([
+            'message' => 'Verification email sent.',
+        ]);
+    }
+
+    /**
+     * Verifieer e-mailadres
+     *
+     * Verifieer het e-mailadres met de ontvangen token.
+     *
+     * @unauthenticated
+     *
+     * @queryParam user_id integer required De gebruiker ID. Example: 1
+     * @queryParam token string required De verificatie token. Example: abc123...
+     *
+     * @response 200 scenario="Succesvol geverifieerd" {"message": "Email verified successfully."}
+     * @response 400 scenario="Ongeldige token" {"message": "Invalid or expired token."}
+     */
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'token' => 'required|string',
+        ]);
+
+        $verified = $this->emailVerificationService->verify(
+            (int) $request->input('user_id'),
+            $request->input('token'),
+        );
+
+        if (!$verified) {
+            return response()->json([
+                'message' => 'Invalid or expired token.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        return response()->json([
+            'message' => 'Email verified successfully.',
         ]);
     }
 

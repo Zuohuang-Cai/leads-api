@@ -6,7 +6,8 @@ namespace App\Domain\Lead\Exceptions;
 
 use InvalidArgumentException;
 
-final class InvalidEmailException extends InvalidArgumentException
+final class
+InvalidEmailException extends InvalidArgumentException
 {
     public static function invalid(string $email): self
     {
