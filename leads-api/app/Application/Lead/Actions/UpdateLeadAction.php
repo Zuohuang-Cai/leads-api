@@ -22,9 +22,6 @@ final readonly class UpdateLeadAction
         $updated = $existing->update($dto->name, $dto->email, $dto->source, $dto->status);
 
         $persisted = $this->repository->update($updated);
-
-        LeadUpdated::dispatch($persisted->id);
-
         return $persisted;
     }
 }

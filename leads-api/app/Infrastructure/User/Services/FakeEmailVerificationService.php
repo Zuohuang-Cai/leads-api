@@ -11,12 +11,12 @@ final class FakeEmailVerificationService implements EmailVerificationServiceInte
 
     public function sendVerificationEmail(int $userId): void
     {
-        echo "Sending verification email to user ID: $userId\n";
+        echo "// Sending verification email to user ID: $userId\n";
     }
 
     public function verify(int $userId, string $token): void
     {
-        echo "Verifying user ID: $userId with token: $token\n";
+        echo "// Verifying user ID: $userId with token: $token\n";
     }
 }
 

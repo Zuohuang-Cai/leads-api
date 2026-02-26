@@ -15,12 +15,9 @@ final readonly class DeleteLeadAction
 
     public function execute(int $id): bool
     {
-        // Ensure the lead exists (throws LeadNotFoundException if not)
         $this->repository->findById($id);
 
         $deleted = $this->repository->delete($id);
-
-        LeadDeleted::dispatch($id);
 
         return $deleted;
     }

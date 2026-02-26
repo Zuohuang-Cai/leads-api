@@ -20,9 +20,7 @@ final readonly class CreateLeadAction
         $lead = Lead::create($dto->name, $dto->email, $dto->source, $dto->status);
 
         $persisted = $this->repository->create($lead);
-
-        LeadCreated::dispatch($persisted->id, $persisted->name->value, $persisted->email->value);
-
         return $persisted;
+
     }
 }

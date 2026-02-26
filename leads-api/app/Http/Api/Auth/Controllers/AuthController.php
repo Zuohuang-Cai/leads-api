@@ -53,17 +53,14 @@ final class AuthController extends Controller
             password: $validated['password'],
         );
 
-        // Persist and get back with ID
         $persistedUser = $this->userRepository->create($domainUser);
 
-        // Dispatch UserCreated event (triggers SendVerificationEmailListener)
         UserCreated::dispatch(
             $persistedUser->id,
             $persistedUser->name->value,
             $persistedUser->email->value,
         );
 
-        // Get Eloquent model for Sanctum token
         $eloquentUser = $this->userRepository->findEloquentById($persistedUser->id);
         $token = $eloquentUser->createToken('auth-token')->plainTextToken;
 

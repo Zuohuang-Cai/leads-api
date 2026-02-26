@@ -21,9 +21,6 @@ final readonly class User
         public ?DateTimeImmutable $updatedAt = null,
     ) {}
 
-    /**
-     * Factory for creating a brand-new User.
-     */
     public static function create(
         string $name,
         string $email,
@@ -36,9 +33,6 @@ final readonly class User
         );
     }
 
-    /**
-     * Reconstitute a User from persistence.
-     */
     public static function fromPersistence(
         int $id,
         string $name,
@@ -59,9 +53,6 @@ final readonly class User
         );
     }
 
-    /**
-     * Convert to array for persistence.
-     */
     public function toArray(): array
     {
         return [
@@ -71,17 +62,11 @@ final readonly class User
         ];
     }
 
-    /**
-     * Verify password.
-     */
     public function verifyPassword(string $plainPassword): bool
     {
         return $this->password->verify($plainPassword);
     }
 
-    /**
-     * Check if email is verified.
-     */
     public function isEmailVerified(): bool
     {
         return $this->emailVerifiedAt !== null;

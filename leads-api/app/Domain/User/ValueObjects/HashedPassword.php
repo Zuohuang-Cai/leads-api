@@ -15,9 +15,6 @@ final readonly class HashedPassword
         $this->value = $hashedValue;
     }
 
-    /**
-     * Create from a plain text password (will be hashed).
-     */
     public static function fromPlainText(string $plainPassword): self
     {
         if (mb_strlen($plainPassword) < 8) {
@@ -27,17 +24,11 @@ final readonly class HashedPassword
         return new self(password_hash($plainPassword, PASSWORD_DEFAULT));
     }
 
-    /**
-     * Reconstitute from an already hashed password (from persistence).
-     */
     public static function fromHash(string $hashedPassword): self
     {
         return new self($hashedPassword);
     }
 
-    /**
-     * Verify a plain text password against this hash.
-     */
     public function verify(string $plainPassword): bool
     {
         return password_verify($plainPassword, $this->value);
