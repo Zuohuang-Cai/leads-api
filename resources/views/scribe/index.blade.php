@@ -77,17 +77,11 @@
                                                                                 <li class="tocify-item level-2" data-unique="auth-POSTapi-auth-login">
                                 <a href="#auth-POSTapi-auth-login">Inloggen</a>
                             </li>
-                                                                                <li class="tocify-item level-2" data-unique="auth-GETapi-auth-verify-email">
-                                <a href="#auth-GETapi-auth-verify-email">Verifieer e-mailadres</a>
-                            </li>
                                                                                 <li class="tocify-item level-2" data-unique="auth-POSTapi-auth-logout">
                                 <a href="#auth-POSTapi-auth-logout">Uitloggen</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="auth-GETapi-auth-me">
                                 <a href="#auth-GETapi-auth-me">Huidige gebruiker ophalen</a>
-                            </li>
-                                                                                <li class="tocify-item level-2" data-unique="auth-POSTapi-auth-send-verification-email">
-                                <a href="#auth-POSTapi-auth-send-verification-email">Verstuur verificatie e-mail</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -524,202 +518,6 @@ You can check the Dev Tools console for debugging information.</code></pre>
         </div>
         </form>
 
-                    <h2 id="auth-GETapi-auth-verify-email">Verifieer e-mailadres</h2>
-
-<p>
-</p>
-
-<p>Verifieer het e-mailadres met de ontvangen token.</p>
-
-<span id="example-requests-GETapi-auth-verify-email">
-<blockquote>Example request:</blockquote>
-
-
-<div class="bash-example">
-    <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:8000/api/auth/verify-email?user_id=1&amp;token=abc123..." \
-    --header "Content-Type: application/json" \
-    --header "Accept: application/json" \
-    --data "{
-    \"user_id\": 16,
-    \"token\": \"architecto\"
-}"
-</code></pre></div>
-
-
-<div class="javascript-example">
-    <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:8000/api/auth/verify-email"
-);
-
-const params = {
-    "user_id": "1",
-    "token": "abc123...",
-};
-Object.keys(params)
-    .forEach(key =&gt; url.searchParams.append(key, params[key]));
-
-const headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-};
-
-let body = {
-    "user_id": 16,
-    "token": "architecto"
-};
-
-fetch(url, {
-    method: "GET",
-    headers,
-    body: JSON.stringify(body),
-}).then(response =&gt; response.json());</code></pre></div>
-
-</span>
-
-<span id="example-responses-GETapi-auth-verify-email">
-            <blockquote>
-            <p>Example response (200, Succesvol geverifieerd):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Email verified successfully.&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (400, Ongeldige token):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Invalid or expired token.&quot;
-}</code>
- </pre>
-    </span>
-<span id="execution-results-GETapi-auth-verify-email" hidden>
-    <blockquote>Received response<span
-                id="execution-response-status-GETapi-auth-verify-email"></span>:
-    </blockquote>
-    <pre class="json"><code id="execution-response-content-GETapi-auth-verify-email"
-      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
-</span>
-<span id="execution-error-GETapi-auth-verify-email" hidden>
-    <blockquote>Request failed with error:</blockquote>
-    <pre><code id="execution-error-message-GETapi-auth-verify-email">
-
-Tip: Check that you&#039;re properly connected to the network.
-If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
-You can check the Dev Tools console for debugging information.</code></pre>
-</span>
-<form id="form-GETapi-auth-verify-email" data-method="GET"
-      data-path="api/auth/verify-email"
-      data-authed="0"
-      data-hasfiles="0"
-      data-isarraybody="0"
-      autocomplete="off"
-      onsubmit="event.preventDefault(); executeTryOut('GETapi-auth-verify-email', this);">
-    <h3>
-        Request&nbsp;&nbsp;&nbsp;
-                    <button type="button"
-                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-tryout-GETapi-auth-verify-email"
-                    onclick="tryItOut('GETapi-auth-verify-email');">Try it out ⚡
-            </button>
-            <button type="button"
-                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-canceltryout-GETapi-auth-verify-email"
-                    onclick="cancelTryOut('GETapi-auth-verify-email');" hidden>Cancel 🛑
-            </button>&nbsp;&nbsp;
-            <button type="submit"
-                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-executetryout-GETapi-auth-verify-email"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
-            </button>
-            </h3>
-            <p>
-            <small class="badge badge-green">GET</small>
-            <b><code>api/auth/verify-email</code></b>
-        </p>
-                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
-                                <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
-&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="Content-Type"                data-endpoint="GETapi-auth-verify-email"
-               value="application/json"
-               data-component="header">
-    <br>
-<p>Example: <code>application/json</code></p>
-            </div>
-                                <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
-&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="Accept"                data-endpoint="GETapi-auth-verify-email"
-               value="application/json"
-               data-component="header">
-    <br>
-<p>Example: <code>application/json</code></p>
-            </div>
-                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
-                                    <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>user_id</code></b>&nbsp;&nbsp;
-<small>integer</small>&nbsp;
- &nbsp;
- &nbsp;
-                <input type="number" style="display: none"
-               step="any"               name="user_id"                data-endpoint="GETapi-auth-verify-email"
-               value="1"
-               data-component="query">
-    <br>
-<p>De gebruiker ID. Example: <code>1</code></p>
-            </div>
-                                    <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>token</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="token"                data-endpoint="GETapi-auth-verify-email"
-               value="abc123..."
-               data-component="query">
-    <br>
-<p>De verificatie token. Example: <code>abc123...</code></p>
-            </div>
-                        <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
-        <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>user_id</code></b>&nbsp;&nbsp;
-<small>integer</small>&nbsp;
- &nbsp;
- &nbsp;
-                <input type="number" style="display: none"
-               step="any"               name="user_id"                data-endpoint="GETapi-auth-verify-email"
-               value="16"
-               data-component="body">
-    <br>
-<p>Example: <code>16</code></p>
-        </div>
-                <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>token</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="token"                data-endpoint="GETapi-auth-verify-email"
-               value="architecto"
-               data-component="body">
-    <br>
-<p>Example: <code>architecto</code></p>
-        </div>
-        </form>
-
                     <h2 id="auth-POSTapi-auth-logout">Uitloggen</h2>
 
 <p>
@@ -1013,159 +811,6 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </div>
                         </form>
 
-                    <h2 id="auth-POSTapi-auth-send-verification-email">Verstuur verificatie e-mail</h2>
-
-<p>
-<small class="badge badge-darkred">requires authentication</small>
-</p>
-
-<p>Verstuur een nieuwe verificatie e-mail naar de ingelogde gebruiker.</p>
-
-<span id="example-requests-POSTapi-auth-send-verification-email">
-<blockquote>Example request:</blockquote>
-
-
-<div class="bash-example">
-    <pre><code class="language-bash">curl --request POST \
-    "http://localhost:8000/api/auth/send-verification-email" \
-    --header "Authorization: Bearer {YOUR_ACCESS_TOKEN}" \
-    --header "Content-Type: application/json" \
-    --header "Accept: application/json"</code></pre></div>
-
-
-<div class="javascript-example">
-    <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:8000/api/auth/send-verification-email"
-);
-
-const headers = {
-    "Authorization": "Bearer {YOUR_ACCESS_TOKEN}",
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-};
-
-
-fetch(url, {
-    method: "POST",
-    headers,
-}).then(response =&gt; response.json());</code></pre></div>
-
-</span>
-
-<span id="example-responses-POSTapi-auth-send-verification-email">
-            <blockquote>
-            <p>Example response (200, E-mail verstuurd):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Verification email sent.&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (400, Al geverifieerd):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Email already verified.&quot;
-}</code>
- </pre>
-            <blockquote>
-            <p>Example response (401, Niet geauthenticeerd):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Unauthenticated.&quot;
-}</code>
- </pre>
-    </span>
-<span id="execution-results-POSTapi-auth-send-verification-email" hidden>
-    <blockquote>Received response<span
-                id="execution-response-status-POSTapi-auth-send-verification-email"></span>:
-    </blockquote>
-    <pre class="json"><code id="execution-response-content-POSTapi-auth-send-verification-email"
-      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
-</span>
-<span id="execution-error-POSTapi-auth-send-verification-email" hidden>
-    <blockquote>Request failed with error:</blockquote>
-    <pre><code id="execution-error-message-POSTapi-auth-send-verification-email">
-
-Tip: Check that you&#039;re properly connected to the network.
-If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
-You can check the Dev Tools console for debugging information.</code></pre>
-</span>
-<form id="form-POSTapi-auth-send-verification-email" data-method="POST"
-      data-path="api/auth/send-verification-email"
-      data-authed="1"
-      data-hasfiles="0"
-      data-isarraybody="0"
-      autocomplete="off"
-      onsubmit="event.preventDefault(); executeTryOut('POSTapi-auth-send-verification-email', this);">
-    <h3>
-        Request&nbsp;&nbsp;&nbsp;
-                    <button type="button"
-                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-tryout-POSTapi-auth-send-verification-email"
-                    onclick="tryItOut('POSTapi-auth-send-verification-email');">Try it out ⚡
-            </button>
-            <button type="button"
-                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-canceltryout-POSTapi-auth-send-verification-email"
-                    onclick="cancelTryOut('POSTapi-auth-send-verification-email');" hidden>Cancel 🛑
-            </button>&nbsp;&nbsp;
-            <button type="submit"
-                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-executetryout-POSTapi-auth-send-verification-email"
-                    data-initial-text="Send Request 💥"
-                    data-loading-text="⏱ Sending..."
-                    hidden>Send Request 💥
-            </button>
-            </h3>
-            <p>
-            <small class="badge badge-black">POST</small>
-            <b><code>api/auth/send-verification-email</code></b>
-        </p>
-                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
-                                <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>Authorization</code></b>&nbsp;&nbsp;
-&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="Authorization" class="auth-value"               data-endpoint="POSTapi-auth-send-verification-email"
-               value="Bearer {YOUR_ACCESS_TOKEN}"
-               data-component="header">
-    <br>
-<p>Example: <code>Bearer {YOUR_ACCESS_TOKEN}</code></p>
-            </div>
-                                <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
-&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="Content-Type"                data-endpoint="POSTapi-auth-send-verification-email"
-               value="application/json"
-               data-component="header">
-    <br>
-<p>Example: <code>application/json</code></p>
-            </div>
-                                <div style="padding-left: 28px; clear: unset;">
-                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
-&nbsp;
- &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="Accept"                data-endpoint="POSTapi-auth-send-verification-email"
-               value="application/json"
-               data-component="header">
-    <br>
-<p>Example: <code>application/json</code></p>
-            </div>
-                        </form>
-
                 <h1 id="leads">Leads</h1>
 
     <p>APIs voor het beheren van leads</p>
@@ -1190,8 +835,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"search\": \"b\",
-    \"status\": \"afgevallen\",
-    \"sort\": \"asc\",
+    \"status\": \"opgepakt\",
+    \"sort\": \"desc\",
     \"per_page\": 22
 }"
 </code></pre></div>
@@ -1219,8 +864,8 @@ const headers = {
 
 let body = {
     "search": "b",
-    "status": "afgevallen",
-    "sort": "asc",
+    "status": "opgepakt",
+    "sort": "desc",
     "per_page": 22
 };
 
@@ -1426,10 +1071,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="status"                data-endpoint="GETapi-leads"
-               value="afgevallen"
+               value="opgepakt"
                data-component="body">
     <br>
-<p>Example: <code>afgevallen</code></p>
+<p>Example: <code>opgepakt</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>nieuw</code></li> <li><code>opgepakt</code></li> <li><code>proefrit</code></li> <li><code>offerte</code></li> <li><code>verkocht</code></li> <li><code>afgevallen</code></li></ul>
         </div>
@@ -1440,10 +1085,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="sort"                data-endpoint="GETapi-leads"
-               value="asc"
+               value="desc"
                data-component="body">
     <br>
-<p>Example: <code>asc</code></p>
+<p>Example: <code>desc</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>asc</code></li> <li><code>desc</code></li></ul>
         </div>
